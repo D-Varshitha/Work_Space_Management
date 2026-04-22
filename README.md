@@ -455,9 +455,5 @@ Backend testing scripts are **To be updated**.
 
 - Asmita Ch
 - D-Varshitha
-
-## License
-
-A license file was not found in the repository.
-
-> Suggested license: MIT
+## try out link
+https://work-sphere-vdha.vercel.app/login 
