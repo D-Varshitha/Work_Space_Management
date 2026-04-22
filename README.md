@@ -453,8 +453,6 @@ Backend testing scripts are **To be updated**.
 
 ## Contributors
 
-Contributors detected from Git history:
-
 - Asmita Ch
 - D-Varshitha
 
