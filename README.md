@@ -201,7 +201,7 @@ Work_Space_Management/
 ### Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/D-Varshitha/Work_Space_Management.git
 cd Work_Space_Management
 ```
 
