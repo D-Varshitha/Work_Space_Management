@@ -42,8 +42,9 @@ import Seating from './pages/Shared/Seating';
 import './index.css';
 
 const RoleBasedRoute = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   
+  if (loading) return null;
   if (!user) return <Navigate to="/login" />;
 
   switch (user.role) {
@@ -68,13 +69,23 @@ const RequireRole = ({ roles, children }) => {
   return children;
 };
 
+// Redirect already-authenticated users away from public routes (e.g. /login)
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (user) return <Navigate to="/" replace />;
+
+  return children;
+};
+
 const App = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
           
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<RoleBasedRoute />} />
@@ -119,7 +130,7 @@ const App = () => {
             <Route path="/notifications" element={<Notifications />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
     </AuthProvider>

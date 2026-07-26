@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "https://worksphere-fpvi.onrender.com/api", // ✅ FIXED PORT
+  // In production, set VITE_API_URL to your deployed backend URL.
+  // In local dev, this falls back to '/api' which Vite proxies to localhost:5001.
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 // Add a request interceptor to include JWT token
