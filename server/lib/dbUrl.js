@@ -14,21 +14,18 @@ export function preferIpv4First() {
 
 /**
  * Remove sslmode/ssl query params so `pg` does not fight with Sequelize `dialectOptions.ssl`.
+ * NOTE: We intentionally do NOT rewrite the pooler host to a direct connection host.
+ * Cloud platforms (Render, Railway, etc.) can reach Supabase pooler URLs but NOT
+ * the direct `db.*` host on free-tier projects.
  */
 export function normalizePostgresUrl(url) {
   if (!url || typeof url !== 'string') return url;
   try {
     const u = new URL(url.replace(/^postgresql:/i, 'http:').replace(/^postgres:/i, 'http:'));
+    // Only strip params that conflict with Sequelize's own SSL dialect options
     u.searchParams.delete('sslmode');
     u.searchParams.delete('ssl');
-
-    // Supabase "transaction pooler" host (pooler.*) can cause issues for some clients.
-    // Prefer direct connection host (db.*) and default port 5432.
-    if (/pooler\./i.test(u.hostname) && /\.supabase\.co$/i.test(u.hostname)) {
-      u.hostname = u.hostname.replace(/^pooler\./i, 'db.');
-      if (u.port === '6543') u.port = '5432';
-    }
-
+    // Keep pgbouncer=true and all other params intact
     return u.toString().replace(/^http:/i, 'postgres:');
   } catch {
     return url;
