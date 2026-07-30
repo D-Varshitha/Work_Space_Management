@@ -33,7 +33,28 @@ import { Op } from 'sequelize';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS: allow local dev + the deployed Vercel frontend
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  // Add your Vercel frontend URL here once deployed, e.g.:
+  // 'https://your-app-name.vercel.app',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 // Routes
@@ -1801,8 +1822,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
-// 🔥 FIXED PORT HERE
-const PORT = 5001;
+// Port: use environment variable (required by Render, Railway, etc.) or fall back to 5001 for local dev
+const PORT = process.env.PORT || 5001;
 
 // DB + SERVER START
 async function startServer() {
