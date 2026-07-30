@@ -1,5 +1,7 @@
 # WorkSphere Workplace Management System
 
+🌐 **Live Demo:** [work-space-management-gn1sfpee4-varshithas-projects-f0e6f324.vercel.app](https://work-space-management-gn1sfpee4-varshithas-projects-f0e6f324.vercel.app)
+
 ## Overview
 
 WorkSphere is a role-based workplace management platform for organizations that need a single system to coordinate employees, managers, projects, attendance, leave, facilities, assets, wellness, and internal notifications.
@@ -111,12 +113,18 @@ The core value of the system is operational visibility across people, workspace 
 - PostCSS
 - Autoprefixer
 
+### Deployment
+
+- **Frontend**: [Vercel](https://vercel.com) — automatic deploys from `main` branch
+- **Backend**: [Render](https://render.com) — Node.js web service, auto-deploys from `main` branch
+- **Database**: [Supabase](https://supabase.com) — managed PostgreSQL (ap-northeast-1)
+
 ### APIs / Integrations
 
 - REST API served from Express under `/api`
 - JWT Authorization header for authenticated requests
-- Render deployment is referenced in the frontend API client
-- Supabase/PostgreSQL connection handling in the backend
+- Backend deployed on Render; frontend deployed on Vercel
+- Supabase/PostgreSQL connection via transaction pooler (port 6543)
 
 ## Architecture
 
@@ -242,18 +250,11 @@ OVERWORK_SCORE_THRESHOLD=120
 
 ### Important Setup Notes
 
-- The backend currently listens on **port `5001`** in `server/server.js`.
-- The frontend Axios client currently points to a deployed API URL:
-
-```js
-https://worksphere-fpvi.onrender.com/api
-```
-
-- For local development, update `client/src/api/axios.js` to your local backend, for example:
-
-```js
-baseURL: "http://localhost:5001/api"
-```
+- The backend listens on the port injected by Render (`process.env.PORT`) and falls back to **`5001`** for local development.
+- The frontend Axios client reads `VITE_API_URL` from environment variables:
+  - **Production**: set `VITE_API_URL` in the Vercel dashboard to your Render backend URL + `/api`
+  - **Local dev**: falls back to `/api`, which Vite proxies to `localhost:5001` via `vite.config.js`
+- The frontend `client/vercel.json` includes SPA rewrite rules so page refreshes on any route (e.g. `/admin/employees`) do not return 404.
 
 ### Run the Backend
 
@@ -416,16 +417,14 @@ npm run backfill:assets
 | `GET` | `/api/workload/my` | Get workload score for current user |
 | `GET` | `/api/admin/workload/risks` | Get overwork risk report |
 
-## Screenshots / Demo
+## Live Demo
 
-> To be updated
+**URL:** [https://work-space-management-gn1sfpee4-varshithas-projects-f0e6f324.vercel.app](https://work-space-management-gn1sfpee4-varshithas-projects-f0e6f324.vercel.app)
 
-Suggested additions:
-
-- Login screen
-- Admin dashboard
-- Manager project/team management screen
-- Employee assets and wellness pages
+The application is fully deployed with:
+- Frontend on **Vercel** (auto-deploys on every push to `main`)
+- Backend API on **Render** (auto-deploys on every push to `main`)
+- Database on **Supabase** (PostgreSQL, always-on cloud instance)
 
 ## Testing
 
@@ -443,11 +442,10 @@ Backend testing scripts are **To be updated**.
 ## Future Improvements
 
 - Add automated backend and frontend tests
-- Move the frontend API base URL to environment variables instead of hardcoding the deployed URL
 - Add complete API documentation with request/response examples
 - Implement missing backend routes currently referenced by the UI, such as project progress update and admin stats
 - Add email delivery for password reset instead of returning reset tokens in the API response
-- Introduce migrations instead of relying on `sequelize.sync({ alter: true })` in production
+- Introduce Sequelize migrations instead of relying on `sequelize.sync({ alter: true })` in production
 - Add audit logs for approvals, booking updates, and asset assignment changes
 - Add dashboards for global notices and feedback response threads already modeled in the database
 
@@ -455,5 +453,3 @@ Backend testing scripts are **To be updated**.
 
 - Asmita Ch
 - D-Varshitha
-## try out link
-https://work-sphere-vdha.vercel.app/login 
