@@ -32,6 +32,13 @@ import { Op } from 'sequelize';
 
 dotenv.config();
 
+// ── TEMPORARY DEBUG (remove after confirming Render env vars) ──
+console.log('[ENV CHECK] NODE_ENV        :', process.env.NODE_ENV);
+console.log('[ENV CHECK] DATABASE_URL    :', process.env.DATABASE_URL ? process.env.DATABASE_URL.slice(0, 40) + '...' : '❌ NOT SET');
+console.log('[ENV CHECK] DB_SSL          :', process.env.DB_SSL);
+console.log('[ENV CHECK] DB_SYNC         :', process.env.DB_SYNC);
+// ── END TEMPORARY DEBUG ──
+
 const app = express();
 
 // CORS: allow local dev + the deployed Vercel frontend
