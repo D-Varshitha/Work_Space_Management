@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/axios';
 
@@ -39,11 +40,18 @@ const EmployeeAttendance = () => {
   const markPresent = async () => {
     setLoading(true);
     try {
-      await api.post('/attendance/checkin', { status: 'present' });
+      // No status sent — server auto-detects based on check-in time
+      const res = await api.post('/attendance/checkin');
+      const { autoStatus, checkedInAt, cutoff } = res.data;
+      const timeStr = new Date(checkedInAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
       await fetchAttendance();
-      alert('Successfully checked in for today!');
+      if (autoStatus === 'late') {
+        toast(`Checked in at ${timeStr} — marked LATE (cutoff ${cutoff}) ⏰`, { icon: '🕐' });
+      } else {
+        toast.success(`Checked in at ${timeStr} — marked PRESENT ✅`);
+      }
     } catch (error) {
-      alert(error.response?.data?.message || 'Check-in failed');
+      toast.error(error.response?.data?.message || 'Check-in failed');
       setLoading(false);
     }
   };
@@ -82,7 +90,7 @@ const EmployeeAttendance = () => {
             onClick={markPresent}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-sm"
           >
-            Mark Today as Present
+            Check In for Today
           </button>
         </div>
 

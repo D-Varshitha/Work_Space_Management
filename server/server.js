@@ -487,9 +487,13 @@ app.patch('/api/tasks/:id', protect, async (req, res) => {
 });
 
 // ATTENDANCE
+// Late cutoff is configurable via environment variables:
+//   LATE_CUTOFF_HOUR   (default: 9)   — 24-hour format
+//   LATE_CUTOFF_MINUTE (default: 15)  — e.g. 9:15 AM → late
 app.post('/api/attendance/checkin', protect, async (req, res) => {
   try {
-    const todayStart = new Date();
+    const now       = new Date();
+    const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date(todayStart);
@@ -504,13 +508,31 @@ app.post('/api/attendance/checkin', protect, async (req, res) => {
 
     if (existing) return res.status(400).json({ message: 'Already checked in today' });
 
+    // ── Auto-detect status from server clock ──────────────────────────────
+    const cutoffHour   = parseInt(process.env.LATE_CUTOFF_HOUR   ?? '9',  10);
+    const cutoffMinute = parseInt(process.env.LATE_CUTOFF_MINUTE ?? '15', 10);
+    const currentHour   = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    const isPastCutoff =
+      currentHour > cutoffHour ||
+      (currentHour === cutoffHour && currentMinute >= cutoffMinute);
+
+    const status = isPastCutoff ? 'late' : 'present';
+    // ─────────────────────────────────────────────────────────────────────
+
     const attendance = await Attendance.create({
       userId: req.user.id,
-      status: req.body.status || 'present',
-      date: new Date()
+      status,
+      date:   now
     });
 
-    res.status(201).json(attendance);
+    res.status(201).json({
+      ...attendance.toJSON(),
+      autoStatus: status,
+      checkedInAt: now.toISOString(),
+      cutoff: `${String(cutoffHour).padStart(2,'0')}:${String(cutoffMinute).padStart(2,'0')}`
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

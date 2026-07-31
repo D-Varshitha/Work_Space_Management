@@ -448,8 +448,3 @@ Backend testing scripts are **To be updated**.
 - Introduce Sequelize migrations instead of relying on `sequelize.sync({ alter: true })` in production
 - Add audit logs for approvals, booking updates, and asset assignment changes
 - Add dashboards for global notices and feedback response threads already modeled in the database
-
-## Contributors
-
-- Asmita Ch
-- D-Varshitha

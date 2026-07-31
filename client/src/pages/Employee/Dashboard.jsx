@@ -42,8 +42,15 @@ const EmployeeDashboard = () => {
   const markPresent = async () => {
     setCheckingIn(true);
     try {
-      await api.post('/attendance/checkin', { status: 'present' });
-      toast.success('Attendance marked — have a great day! ✅');
+      // No status sent — server auto-detects based on check-in time
+      const res = await api.post('/attendance/checkin');
+      const { autoStatus, checkedInAt, cutoff } = res.data;
+      const timeStr = new Date(checkedInAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      if (autoStatus === 'late') {
+        toast(`Checked in at ${timeStr} — marked LATE (cutoff was ${cutoff}) ⏰`, { icon: '🕐' });
+      } else {
+        toast.success(`Checked in at ${timeStr} — marked PRESENT ✅`);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Check-in failed. Please try again.');
     } finally {
