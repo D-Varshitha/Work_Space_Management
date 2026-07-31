@@ -31,7 +31,7 @@ const AdminFeedback = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {feedbacks.map((fb) => (
-          <div key={fb.id} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+          <div key={fb.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -68,8 +68,8 @@ const AdminFeedback = () => {
         ))}
 
         {feedbacks.length === 0 && (
-          <div className="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-            <p className="text-gray-500">No feedback submissions found.</p>
+          <div className="col-span-full text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+            <p className="text-gray-500 dark:text-gray-400">No feedback submissions found.</p>
           </div>
         )}
       </div>

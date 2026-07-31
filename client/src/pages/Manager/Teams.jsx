@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Users, Briefcase, Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Users, Briefcase, Plus, CheckCircle, Clock, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../api/axios';
 
 const ManagerTeams = () => {
@@ -55,12 +56,12 @@ const ManagerTeams = () => {
         ...newTask,
         projectId: selectedProject.id
       });
-      alert('Task assigned successfully!');
+      toast.success('Task assigned successfully!');
       setShowTaskModal(false);
       setNewTask({ title: '', assignedTo: '', dueDate: '' });
-      fetchData(); // Refresh tasks
-    } catch (error) {
-      alert('Failed to assign task');
+      fetchData();
+    } catch {
+      toast.error('Failed to assign task');
     }
   };
 
@@ -75,19 +76,18 @@ const ManagerTeams = () => {
         userId: newMember.userId,
         role: newMember.role
       });
-      alert('Member added to project successfully!');
+      toast.success('Member added to project!');
       setShowMemberModal(false);
       setNewMember({ userId: '', role: 'member' });
-      fetchData(); // Refresh projects to show new member
+      fetchData();
     } catch (error) {
-      console.error('Failed to add member:', error);
-      alert('Failed to add member (is there a backend endpoint for /api/projects/:id/members?)');
+      toast.error(error.response?.data?.message || 'Failed to add member');
     } finally {
       setIsAddingMember(false);
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading teams and tasks...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading teams and tasks...</div>;
 
   return (
     <div className="space-y-8">
@@ -98,33 +98,27 @@ const ManagerTeams = () => {
 
       <div className="grid grid-cols-1 gap-8">
         {projects.map((project) => (
-          <div key={project.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="p-6 bg-gray-50 border-b flex justify-between items-center">
+          <div key={project.id} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <div className="bg-blue-600 p-2 rounded-lg text-white">
                   <Briefcase className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{project.name}</h2>
-                  <p className="text-sm text-gray-500">Status: <span className="capitalize font-bold text-blue-600">{project.status}</span></p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{project.name}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Status: <span className="capitalize font-bold text-blue-600">{project.status}</span></p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => {
-                    setSelectedProject(project);
-                    setShowMemberModal(true);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-bold text-sm border border-gray-200"
+                <button
+                  onClick={() => { setSelectedProject(project); setShowMemberModal(true); }}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition font-bold text-sm border border-gray-200 dark:border-gray-600"
                 >
                   <Users className="w-4 h-4" />
                   Add Member
                 </button>
-                <button 
-                  onClick={() => {
-                    setSelectedProject(project);
-                    setShowTaskModal(true);
-                  }}
+                <button
+                  onClick={() => { setSelectedProject(project); setShowTaskModal(true); }}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold text-sm"
                 >
                   <Plus className="w-4 h-4" />
@@ -142,7 +136,7 @@ const ManagerTeams = () => {
                 </h3>
                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                   {project.TeamMembers?.map((member, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-4 bg-white border rounded-xl">
+                    <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                           {member.name?.charAt(0)}
@@ -170,7 +164,7 @@ const ManagerTeams = () => {
                 </h3>
                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                   {projectTasks[project.id]?.map((task) => (
-                    <div key={task.id} className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div key={task.id} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
                       <div className="flex justify-between items-start mb-2">
                         <p className="font-bold text-gray-800">{task.title}</p>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
@@ -206,30 +200,30 @@ const ManagerTeams = () => {
       </div>
 
       {showTaskModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-8 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Assign Task: {selectedProject.name}</h2>
-              <button onClick={() => setShowTaskModal(false)} className="text-gray-400 hover:text-gray-600">
-                <AlertCircle className="w-6 h-6" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Assign Task: {selectedProject.name}</h2>
+              <button onClick={() => setShowTaskModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <X className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleAssignTask} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Task Title</label>
-                <input 
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Task Title</label>
+                <input
                   type="text" required
-                  className="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                   placeholder="Enter task description..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Assign To</label>
-                <select 
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Assign To</label>
+                <select
                   required
-                  className="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newTask.assignedTo}
                   onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
                 >
@@ -240,26 +234,19 @@ const ManagerTeams = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Due Date</label>
-                <input 
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Due Date</label>
+                <input
                   type="date" required
-                  className="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newTask.dueDate}
                   onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
                 />
               </div>
               <div className="flex gap-4">
-                <button 
-                  type="button" 
-                  onClick={() => setShowTaskModal(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200"
-                >
+                <button type="button" onClick={() => setShowTaskModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600">
                   Cancel
                 </button>
-                <button 
-                  type="submit"
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"
-                >
+                <button type="submit" className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">
                   Confirm Assignment
                 </button>
               </div>
@@ -269,20 +256,20 @@ const ManagerTeams = () => {
       )}
 
       {showMemberModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-8 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Add Member to {selectedProject?.name}</h2>
-              <button onClick={() => setShowMemberModal(false)} className="text-gray-400 hover:text-gray-600">
-                <AlertCircle className="w-6 h-6" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add Member to {selectedProject?.name}</h2>
+              <button onClick={() => setShowMemberModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <X className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleAddMember} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Select Employee</label>
-                <select 
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Select Employee</label>
+                <select
                   required
-                  className="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newMember.userId}
                   onChange={(e) => setNewMember({ ...newMember, userId: e.target.value })}
                 >
@@ -291,34 +278,22 @@ const ManagerTeams = () => {
                     <option key={emp.id} value={emp.id}>{emp.name}</option>
                   ))}
                 </select>
-                {allEmployees.length === 0 && (
-                  <p className="text-xs text-orange-500 mt-2">No employees available. Ensure they have 'employee' role.</p>
-                )}
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Role</label>
-                <input 
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                <input
                   type="text" required
-                  className="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newMember.role}
                   onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
                   placeholder="e.g. Developer, Designer"
                 />
               </div>
-              
               <div className="flex gap-4">
-                <button 
-                  type="button" 
-                  onClick={() => setShowMemberModal(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200"
-                >
+                <button type="button" onClick={() => setShowMemberModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600">
                   Cancel
                 </button>
-                <button 
-                  type="submit"
-                  disabled={isAddingMember || !newMember.userId}
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50"
-                >
+                <button type="submit" disabled={isAddingMember || !newMember.userId} className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
                   {isAddingMember ? 'Adding...' : 'Add Member'}
                 </button>
               </div>

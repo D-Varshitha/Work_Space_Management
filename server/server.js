@@ -66,6 +66,126 @@ app.get('/api/me', protect, async (req, res) => {
   res.json(req.user);
 });
 
+// ── ADMIN STATS ──────────────────────────────────────────────────────────────
+app.get('/api/admin/stats', protect, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [
+      totalEmployees,
+      activeEmployees,
+      activeProjects,
+      totalTasks,
+      completedTasks,
+      pendingTasks,
+      attendanceToday,
+      employeesOnLeave,
+      assetsAssigned,
+      maintenanceRequests,
+      overworkRisks
+    ] = await Promise.all([
+      User.count({ where: { role: { [Op.ne]: 'admin' } } }),
+      User.count({ where: { role: { [Op.ne]: 'admin' }, archived: false } }),
+      Project.count({ where: { status: { [Op.ne]: 'completed' } } }),
+      Task.count(),
+      Task.count({ where: { status: 'done' } }),
+      Task.count({ where: { status: { [Op.in]: ['todo', 'in-progress'] } } }),
+      Attendance.count({ where: { date: { [Op.between]: [today, tomorrow] }, status: 'present' } }),
+      Leave.count({ where: { status: 'approved', startDate: { [Op.lte]: today }, endDate: { [Op.gte]: today } } }),
+      Asset.count({ where: { status: 'Assigned' } }),
+      AssetMaintenanceRequest.count({ where: { status: 'pending' } }),
+      // Overwork risk: employees with 3+ active/overdue tasks
+      Task.count({ where: { status: { [Op.in]: ['todo', 'in-progress'] }, dueDate: { [Op.lt]: new Date() } } })
+    ]);
+
+    const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    res.json({
+      totalEmployees,
+      activeEmployees,
+      activeProjects,
+      totalTasks,
+      completedTasks,
+      pendingTasks,
+      attendanceToday,
+      employeesOnLeave,
+      assetsAssigned,
+      maintenanceRequests,
+      overworkRisks,
+      taskCompletionRate
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── MANAGER STATS ─────────────────────────────────────────────────────────────
+app.get('/api/manager/stats', protect, authorizeRoles('admin', 'manager'), async (req, res) => {
+  try {
+    const managerId = req.user.id;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const teamMembers = await User.findAll({ where: { managerId, archived: false }, attributes: ['id'] });
+    const teamMemberIds = teamMembers.map(u => u.id);
+
+    const projects = await Project.findAll({ where: { managerId }, attributes: ['id'] });
+    const projectIds = projects.map(p => p.id);
+
+    const [
+      activeProjects,
+      pendingLeaves,
+      openTasks,
+      completedTasks,
+      attendanceToday,
+      wellnessData
+    ] = await Promise.all([
+      Project.count({ where: { managerId, status: { [Op.ne]: 'completed' } } }),
+      teamMemberIds.length > 0
+        ? Leave.count({ where: { employeeId: { [Op.in]: teamMemberIds }, status: 'pending' } })
+        : 0,
+      projectIds.length > 0
+        ? Task.count({ where: { projectId: { [Op.in]: projectIds }, status: { [Op.ne]: 'done' } } })
+        : 0,
+      projectIds.length > 0
+        ? Task.count({ where: { projectId: { [Op.in]: projectIds }, status: 'done' } })
+        : 0,
+      teamMemberIds.length > 0
+        ? Attendance.count({ where: { userId: { [Op.in]: teamMemberIds }, date: { [Op.between]: [today, tomorrow] }, status: 'present' } })
+        : 0,
+      teamMemberIds.length > 0
+        ? WellnessCheckin.findAll({
+            where: { employeeId: { [Op.in]: teamMemberIds } },
+            order: [['createdAt', 'DESC']],
+            limit: Math.max(teamMemberIds.length * 3, 10)
+          })
+        : []
+    ]);
+
+    const avgWellnessScore = wellnessData.length > 0
+      ? Math.round((wellnessData.reduce((sum, w) => sum + (10 - w.stressLevel + 1), 0) / wellnessData.length) * 10)
+      : null;
+
+    res.json({
+      teamSize: teamMemberIds.length,
+      activeProjects,
+      pendingLeaves,
+      openTasks,
+      completedTasks,
+      attendanceToday,
+      wellnessScore: avgWellnessScore
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 // USERS
 app.get('/api/users', protect, authorizeRoles('admin', 'manager'), async (req, res) => {
   try {

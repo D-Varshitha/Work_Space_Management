@@ -39,7 +39,7 @@ const AdminProjects = () => {
           <input
             type="text"
             placeholder="Search projects..."
-            className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64"
+            className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64 text-gray-900 dark:text-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -48,7 +48,7 @@ const AdminProjects = () => {
 
       <div className="grid grid-cols-1 gap-6">
         {filteredProjects.map((project) => (
-          <div key={project.id} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <div key={project.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <div className="flex flex-col lg:flex-row justify-between gap-6">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
@@ -98,7 +98,7 @@ const AdminProjects = () => {
                 </div>
                 <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
                   {project.TeamMembers?.map((member, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div>
                         <p className="text-sm font-bold">{member.name || 'Unknown'}</p>
                         <p className="text-xs text-gray-500">{member.ProjectMember?.role || 'member'}</p>
@@ -118,8 +118,8 @@ const AdminProjects = () => {
           </div>
         ))}
         {filteredProjects.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-            <p className="text-gray-500">No projects found matching your search.</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+            <p className="text-gray-500 dark:text-gray-400">No projects found matching your search.</p>
           </div>
         )}
       </div>

@@ -44,7 +44,7 @@ const AdminOverworkRisks = () => {
           No overwork risks detected.
         </div>
       ) : (
-        <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 text-sm text-gray-500 border-b">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/axios';
 
@@ -50,24 +51,24 @@ const Leaves = () => {
         ...newRequest,
         managerId: user.managerId || null
       });
-      alert('Leave request submitted!');
+      toast.success('Leave request submitted!');
       setNewRequest({ startDate: '', endDate: '', reason: '' });
       fetchLeaves();
-    } catch (error) {
-      alert('Failed to submit request');
+    } catch {
+      toast.error('Failed to submit request');
     }
   };
 
   const handleAction = async (id, status, comment = '') => {
     try {
       await api.put(`/leave/${id}`, { status, rejectionComment: comment });
-      alert(`Request ${status} successfully!`);
+      toast.success(`Leave request ${status}!`);
       setShowRejectionModal(false);
       setRejectionComment('');
       await refreshUser?.();
       fetchLeaves();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update status');
+      toast.error(error.response?.data?.message || 'Failed to update status');
     }
   };
 
@@ -96,41 +97,41 @@ const Leaves = () => {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 capitalize">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
             {user.role === 'employee' ? 'My Leave Requests' : 'Leave Management'}
           </h1>
-          <p className="text-gray-500">Track and manage leave applications.</p>
+          <p className="text-gray-500 dark:text-gray-400">Track and manage leave applications.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {user.role !== 'admin' && (
-          <div className="bg-white p-6 rounded-xl border shadow-sm h-fit lg:sticky lg:top-8">
-            <h2 className="text-lg font-bold mb-4">Apply for Leave</h2>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm h-fit lg:sticky lg:top-8">
+            <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Apply for Leave</h2>
             <form onSubmit={handleApply} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
                 <input
                   type="date" required
-                  className="mt-1 block w-full px-4 py-2 bg-gray-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newRequest.startDate}
                   onChange={(e) => setNewRequest({ ...newRequest, startDate: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
                 <input
                   type="date" required
-                  className="mt-1 block w-full px-4 py-2 bg-gray-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newRequest.endDate}
                   onChange={(e) => setNewRequest({ ...newRequest, endDate: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Reason</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Reason</label>
                 <textarea
                   required rows="3"
-                  className="mt-1 block w-full px-4 py-2 bg-gray-50 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                   value={newRequest.reason}
                   onChange={(e) => setNewRequest({ ...newRequest, reason: e.target.value })}
                   placeholder="Reason for leave..."
@@ -160,7 +161,7 @@ const Leaves = () => {
                   const isSelf = String(req.employeeId) === String(user.id);
                   const employeeName = req.user?.name || req.Employee?.name || 'Leave';
                   return (
-                    <div key={req.id} className="bg-white p-6 rounded-2xl border flex items-center justify-between shadow-sm hover:shadow-md transition border-l-4 border-l-blue-600">
+                    <div key={req.id} className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-between shadow-sm hover:shadow-md transition border-l-4 border-l-blue-600">
                       <div className="flex items-center gap-6">
                         <div className={`p-4 rounded-xl ${req.status === 'approved' ? 'bg-green-100 text-green-600' : req.status === 'rejected' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
                           <Calendar className="w-6 h-6" />
@@ -238,7 +239,7 @@ const Leaves = () => {
                   pendingApprovals
                     .filter((req) => String(req.employeeId) !== String(user.id))
                     .map((req) => (
-                <div key={req.id} className="bg-white p-6 rounded-2xl border flex items-center justify-between shadow-sm hover:shadow-md transition border-l-4 border-l-blue-600">
+                  <div key={req.id} className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-between shadow-sm hover:shadow-md transition border-l-4 border-l-blue-600">
                   <div className="flex items-center gap-6">
                     <div className={`p-4 rounded-xl ${
                       req.status === 'approved' ? 'bg-green-100 text-green-600' : 
@@ -310,17 +311,16 @@ const Leaves = () => {
 
       {showRejectionModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
-            <h2 className="text-xl font-bold mb-4 text-gray-900">Reject Leave Request</h2>
-            <p className="text-sm text-gray-500 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-8 shadow-2xl">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reject Leave Request</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               Please provide a reason for rejecting the leave request from <strong>{selectedRequest?.user?.name || selectedRequest?.Employee?.name}</strong>.
             </p>
-            
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Manager's Comment</label>
-                <textarea 
-                  className="w-full p-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-red-500"
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Manager's Comment</label>
+                <textarea
+                  className="w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
                   rows="4"
                   placeholder="Explain why this request is being rejected..."
                   value={rejectionComment}
@@ -328,16 +328,13 @@ const Leaves = () => {
                 ></textarea>
               </div>
               <div className="flex gap-4">
-                <button 
-                  onClick={() => {
-                    setShowRejectionModal(false);
-                    setRejectionComment('');
-                  }}
-                  className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200"
+                <button
+                  onClick={() => { setShowRejectionModal(false); setRejectionComment(''); }}
+                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={() => handleAction(selectedRequest.id, 'rejected', rejectionComment)}
                   className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200"
                 >

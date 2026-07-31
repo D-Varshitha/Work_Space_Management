@@ -46,7 +46,7 @@ const AdminAttendance = () => {
         <p className="text-gray-500">Monitor daily attendance across the organization.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -95,7 +95,7 @@ const AdminAttendance = () => {
 
       {selectedEmployee && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl p-8 max-h-[80vh] overflow-y-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl p-8 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-xl font-bold">Attendance Log: {selectedEmployee.name}</h2>
@@ -115,7 +115,7 @@ const AdminAttendance = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {employeeAttendance.map((record, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                        <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
                         <div className="flex items-center gap-3">
                           <Calendar className="w-5 h-5 text-gray-400" />
                           <span className="font-medium">{new Date(record.date).toLocaleDateString()}</span>
