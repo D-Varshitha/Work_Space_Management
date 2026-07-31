@@ -4,33 +4,36 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 transition-colors duration-200;
+    background-color: rgb(249 250 251);
+    color: rgb(17 24 39);
+    transition: background-color 0.2s, color 0.2s;
   }
 
   /* ── Dark mode base overrides ───────────────────────────────────────────── */
   .dark body {
-    @apply bg-gray-950 text-gray-100;
+    background-color: rgb(3 7 18);
+    color: rgb(243 244 246);
   }
 
   /* Every white card/panel goes dark */
   .dark .bg-white {
-    @apply bg-gray-800;
+    background-color: rgb(31 41 55) !important;
   }
 
   /* Light backgrounds become dark variants */
   .dark .bg-gray-50 {
-    @apply bg-gray-900;
+    background-color: rgb(17 24 39) !important;
   }
   .dark .bg-gray-100 {
-    @apply bg-gray-700;
+    background-color: rgb(55 65 81) !important;
   }
 
   /* Borders */
   .dark .border-gray-100 {
-    @apply border-gray-700;
+    border-color: rgb(55 65 81) !important;
   }
   .dark .border-gray-200 {
-    @apply border-gray-700;
+    border-color: rgb(55 65 81) !important;
   }
   .dark .divide-gray-100 > * {
     border-color: rgb(55 65 81);
@@ -38,22 +41,22 @@
 
   /* Text colors */
   .dark .text-gray-900 {
-    @apply text-white;
+    color: rgb(255 255 255) !important;
   }
   .dark .text-gray-800 {
-    @apply text-gray-100;
+    color: rgb(243 244 246) !important;
   }
   .dark .text-gray-700 {
-    @apply text-gray-300;
+    color: rgb(209 213 219) !important;
   }
   .dark .text-gray-600 {
-    @apply text-gray-400;
+    color: rgb(156 163 175) !important;
   }
   .dark .text-gray-500 {
-    @apply text-gray-400;
+    color: rgb(156 163 175) !important;
   }
   .dark .text-gray-400 {
-    @apply text-gray-500;
+    color: rgb(107 114 128) !important;
   }
 
   /* Table header */
@@ -62,45 +65,32 @@
     border-color: rgb(55 65 81);
   }
   .dark thead {
-    @apply bg-gray-900;
+    background-color: rgba(17, 24, 39, 0.5);
   }
 
   /* Hover states */
   .dark .hover\:bg-gray-50:hover {
-    background-color: rgb(31 41 55);
+    background-color: rgb(31 41 55) !important;
+  }
+  .dark .hover\:bg-gray-100:hover {
+    background-color: rgb(55 65 81) !important;
   }
 
   /* Form inputs in dark mode */
-  .dark input,
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   .dark select,
   .dark textarea {
-    @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+    background-color: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(243 244 246);
   }
-  .dark input:focus,
-  .dark select:focus,
-  .dark textarea:focus {
-    @apply ring-blue-500 border-blue-500;
-  }
-
-  /* Modals */
-  .dark .modal-bg,
-  .dark .fixed.inset-0 > div {
-    @apply bg-gray-800;
-  }
-
-  /* Scrollbar in dark mode */
-  .dark ::-webkit-scrollbar-track {
-    background: rgb(17 24 39);
-  }
-  .dark ::-webkit-scrollbar-thumb {
-    background: rgb(55 65 81);
-  }
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: rgb(75 85 99);
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: rgb(156 163 175);
   }
 }
 
-/* Smooth scrollbar */
+/* Smooth custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -114,4 +104,13 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(156 163 175);
+}
+.dark ::-webkit-scrollbar-track {
+  background: rgb(17 24 39);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(55 65 81);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(75 85 99);
 }
